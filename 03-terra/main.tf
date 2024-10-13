@@ -1,0 +1,40 @@
+resource "azurerm_resource_group" "resourcegroup" {
+   name = "rg-01"
+   location = "West US"
+}
+resource "azurerm_virtual_network" "virtualNetwork" {
+   name = "myvnet-01"
+   location = azurerm_resource_group.resourcegroup.location
+   resource_group_name = azurerm_resource_group.resourcegroup.name
+   tags = {
+     env = "QA"
+     resource = "vnet"
+   }
+   address_space = ["10.0.0.0/16"]
+}
+
+resource "azurerm_subnet" "Subnet" {
+   name = "subnet01"
+   resource_group_name = azurerm_resource_group.resourcegroup.name
+   virtual_network_name = azurerm_virtual_network.virtualNetwork.name
+   address_prefixes = ["10.0.1.0/24"]
+}
+
+resource "azurerm_public_ip" "PublicIP" {
+   name = "publicip1"
+   resource_group_name = azurerm_resource_group.resourcegroup.name
+   allocation_method = "Static"
+   location = azurerm_resource_group.resourcegroup.location
+}
+
+resource "azurerm_network_interface" "NIC" {
+   name = "acceptanceTestNetworkInterface1"
+   resource_group_name = azurerm_resource_group.resourcegroup.name
+   location = azurerm_resource_group.resourcegroup.location
+   ip_configuration {
+     name = "internal"
+     subnet_id = azurerm_subnet.Subnet.id
+     private_ip_address_allocation = "Dynamic"
+     public_ip_address_id = azurerm_public_ip.PublicIP.id
+   }
+}
