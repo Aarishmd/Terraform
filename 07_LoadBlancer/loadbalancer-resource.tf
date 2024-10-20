@@ -36,6 +36,18 @@ resource "azurerm_lb_probe" "web_lb_probe" {
   loadbalancer_id = azurerm_lb.web_lb.id
 }
 
+#Create the NAT rule for LB
+resource "azurerm_lb_nat_rule" "web_lb_inbound_nat_22" {
+  name                           = "ssh-1022-vm-22"
+  resource_group_name            = azurerm_resource_group.MyRG.location
+  loadbalancer_id                = azurerm_lb.web_lb.id
+  protocol                       = "Tcp"
+  frontend_port                  = 1022
+  backend_port                   = 22
+  frontend_ip_configuration_name = azurerm_lb.web_lb.frontend_ip_configuration[0].name
+}
+
+
 
 # Resource-5: Create LB Rule
 resource "azurerm_lb_rule" "web_lb_rule" {
@@ -59,4 +71,11 @@ resource "azurerm_network_interface_backend_address_pool_association" "web_nic_l
   backend_address_pool_id = azurerm_lb_backend_address_pool.web_lb_backend.id
 }
 
+
+# Associate LB NAT Rule and VM Network Interface
+resource "azurerm_network_interface_nat_rule_association" "web_nic_nat_rule_associate" {
+  network_interface_id  = azurerm_network_interface.nic.id
+  ip_configuration_name = azurerm_network_interface.nic.ip_configuration[0].name
+  nat_rule_id           = azurerm_lb_nat_rule.web_lb_inbound_nat_22.id
+}
 
