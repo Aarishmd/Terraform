@@ -18,5 +18,5 @@ bastion_subnet_name = "bastionsubnet"
 bastion_subnet_address = ["10.1.100.0/24"]
 
 
-web_linuxvm_instance_count = 5
+web_linuxvm_instance_count = 3
 lb_inbound_nat_ports =["1022", "2022", "3022", "4022", "5022"]
